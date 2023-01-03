@@ -95,6 +95,11 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   }
 }
 
+
+resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-05-01' = {
+  name: '${storageAccount.name}/default/django'
+}
+
 resource redisCache 'Microsoft.Cache/Redis@2020-06-01' = {
   name: '${prefix}-redis'
   location: location
@@ -150,12 +155,17 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
   resource appSettings 'config' = {
     name: 'appsettings'
     properties: {
-      DATABASE_URL: 'postgres://${postgresServer.properties.administratorLogin}:${databasePassword}@${postgresServer.name}/${djangoDatabase.name}'
+      DATABASE_URL: 'postgres://${postgresServer.properties.administratorLogin}:${databasePassword}@${postgresServer.properties.fullyQualifiedDomainName}/${djangoDatabase.name}'
       DJANGO_SETTINGS_MODULE: 'config.settings.production'
       DJANGO_DEBUG: 'False'
       DJANGO_SECRET_KEY: djangoSecretKey
       DJANGO_ALLOWED_HOSTS: web.properties.defaultHostName
-      REDIS_URL: redisCache.properties.hostName
+      REDIS_URL: 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/'
+      DJANGO_AZURE_ACCOUNT_NAME: storageAccount.name
+      DJANGO_AZURE_ACCOUNT_KEY: storageAccount.listKeys().keys[0].value
+      DJANGO_AZURE_CONTAINER_NAME: 'django'
+      DJANGO_ADMIN_URL: 'admin${uniqueString(resourceGroup().id)}'
+      CUSTOM_REQUIREMENTSTXT_PATH: 'requirements/production.txt'
       SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
     }
   }
