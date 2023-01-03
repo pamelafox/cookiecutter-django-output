@@ -29,8 +29,12 @@ function pathsConfig(appName) {
   return {
     bootstrapSass: `${vendorsRoot}/bootstrap/scss`,
     vendorsJs: [
-      `${vendorsRoot}/@popperjs/core/dist/umd/popper.js`,
-      `${vendorsRoot}/bootstrap/dist/js/bootstrap.js`,
+      `${vendorsRoot}/@popperjs/core/dist/umd/popper.min.js`,
+      `${vendorsRoot}/bootstrap/dist/js/bootstrap.min.js`,
+    ],
+    vendorsJsMaps: [
+      `${vendorsRoot}/@popperjs/core/dist/umd/popper.min.js.map`,
+      `${vendorsRoot}/bootstrap/dist/js/bootstrap.min.js.map`,
     ],
     app: this.app,
     templates: `${this.app}/templates`,
@@ -85,11 +89,13 @@ function scripts() {
 
 // Vendor Javascript minification
 function vendorScripts() {
+  src(paths.vendorsJsMaps)
+    .pipe(dest(paths.js))
+
   return src(paths.vendorsJs)
     .pipe(concat('vendors.js'))
     .pipe(dest(paths.js))
     .pipe(plumber()) // Checks for errors
-    .pipe(uglify()) // Minifies the js
     .pipe(rename({ suffix: '.min' }))
     .pipe(dest(paths.js))
 }
@@ -102,7 +108,7 @@ function imgCompression() {
 }
 // Run django server
 function runServer(cb) {
-  const cmd = spawn('python', ['manage.py', 'runserver'], {stdio: 'inherit'})
+  const cmd = spawn('python3', ['manage.py', 'runserver'], {stdio: 'inherit'})
   cmd.on('close', function(code) {
     console.log('runServer exited with code ' + code)
     cb(code)
