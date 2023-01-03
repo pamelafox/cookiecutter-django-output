@@ -165,7 +165,6 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
       DJANGO_AZURE_ACCOUNT_KEY: storageAccount.listKeys().keys[0].value
       DJANGO_AZURE_CONTAINER_NAME: 'django'
       DJANGO_ADMIN_URL: 'admin${uniqueString(resourceGroup().id)}'
-      CUSTOM_REQUIREMENTSTXT_PATH: 'requirements/production.txt'
       SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
     }
   }
