@@ -8,6 +8,9 @@
 		"location": {
 			"value": "${AZURE_LOCATION}"
 		},
+		"sendgridAPIKey": {
+			"value": "${SENDGRID_API_KEY}"
+		},
 		"databasePassword": {
 			"value": "$(secretOrRandomPassword)"
 		},

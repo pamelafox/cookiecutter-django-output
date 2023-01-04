@@ -17,6 +17,10 @@ param databasePassword string
 @description('Django Secret Key')
 param djangoSecretKey string
 
+@secure()
+@description('Sendgrid API Key')
+param sendgridAPIKey string
+
 var resourceToken = toLower(uniqueString(subscription().id, name, location))
 var tags = { 'azd-env-name': name }
 
@@ -36,5 +40,6 @@ module resources 'resources.bicep' = {
     tags: tags
     databasePassword: databasePassword
     djangoSecretKey: djangoSecretKey
+    sendgridAPIKey: sendgridAPIKey
   }
 }
