@@ -166,6 +166,7 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
       DJANGO_AZURE_CONTAINER_NAME: 'django'
       DJANGO_ADMIN_URL: 'admin${uniqueString(resourceGroup().id)}'
       SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
+      POST_BUILD_COMMAND: 'npm install && npm run build'
     }
   }
 
