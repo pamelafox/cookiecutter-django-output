@@ -100,6 +100,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-05-01' = {
   name: '${storageAccount.name}/default/django'
+  properties: {
+    publicAccess: 'Blob'
+  }
 }
 
 resource redisCache 'Microsoft.Cache/Redis@2020-06-01' = {
