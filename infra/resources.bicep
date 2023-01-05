@@ -165,7 +165,7 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
       DJANGO_DEBUG: 'False'
       DJANGO_SECRET_KEY: djangoSecretKey
       DJANGO_ALLOWED_HOSTS: web.properties.defaultHostName
-      REDIS_URL: 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/'
+      REDIS_URL: 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/0'
       DJANGO_AZURE_ACCOUNT_NAME: storageAccount.name
       DJANGO_AZURE_ACCOUNT_KEY: storageAccount.listKeys().keys[0].value
       DJANGO_AZURE_CONTAINER_NAME: 'django'
