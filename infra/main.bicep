@@ -9,6 +9,9 @@ param name string
 @description('Primary location for all resources')
 param location string
 
+@description('Id of the user or app to assign application roles')
+param principalId string = ''
+
 @secure()
 @description('PostGreSQL Server administrator password')
 param databasePassword string
@@ -38,6 +41,7 @@ module resources 'resources.bicep' = {
     location: location
     resourceToken: resourceToken
     tags: tags
+    principalId: principalId
     databasePassword: databasePassword
     djangoSecretKey: djangoSecretKey
     sendgridAPIKey: sendgridAPIKey

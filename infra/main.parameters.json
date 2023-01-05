@@ -11,11 +11,14 @@
 		"sendgridAPIKey": {
 			"value": "${SENDGRID_API_KEY}"
 		},
+                "principalId": {
+                        "value": "${AZURE_PRINCIPAL_ID}"
+                },
 		"databasePassword": {
-			"value": "$(secretOrRandomPassword)"
+			"value": "$(secretOrRandomPassword ${AZURE_KEY_VAULT_NAME} databasePassword)"
 		},
 		"djangoSecretKey": {
-			"value": "${DJANGO_SECRET_KEY}"
+			"value": "$(secretOrRandomPassword ${AZURE_KEY_VAULT_NAME} djangoSecretKey)"
 		}
 	}
 }

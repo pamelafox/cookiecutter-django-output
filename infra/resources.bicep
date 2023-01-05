@@ -1,6 +1,7 @@
 param name string
 param location string
 param resourceToken string
+param principalId string
 @secure()
 param databasePassword string
 @secure()
@@ -284,4 +285,38 @@ resource djangoDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@202
   name: 'django'
 }
 
+var validKeyVaultPrefix = take(prefix, 17)
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
+  name: '${validKeyVaultPrefix}-vault'
+  location: location
+  tags: tags
+  properties: {
+    tenantId: subscription().tenantId
+    sku: { family: 'A', name: 'standard' }
+    accessPolicies: [
+      {
+        objectId: principalId
+        permissions: { secrets: [ 'get', 'list' ] }
+        tenantId: subscription().tenantId
+      }
+    ]
+  }
+}
+
+resource databasePasswordSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: keyVault
+  name: 'databasePassword'
+  properties: {
+    value: databasePassword
+  }
+}
+resource djangoSecretKeySecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: keyVault
+  name: 'djangoSecretKey'
+  properties: {
+    value: djangoSecretKey
+  }
+}
+
 output WEB_URI string = 'https://${web.properties.defaultHostName}'
+output AZURE_KEY_VAULT_NAME string = keyVault.name
