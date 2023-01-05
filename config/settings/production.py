@@ -1,3 +1,5 @@
+import socket
+
 from .base import *  # noqa
 from .base import env
 
@@ -7,6 +9,9 @@ from .base import env
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["pamelafox.org"])
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("10.0.0.0", 0))
+ALLOWED_HOSTS += [s.getsockname()[0]]
 
 # DATABASES
 # ------------------------------------------------------------------------------
@@ -22,7 +27,7 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             # Mimicing memcache behavior.
             # https://github.com/jazzband/django-redis#memcached-exceptions-behavior
-            "IGNORE_EXCEPTIONS": True,
+            "IGNORE_EXCEPTIONS": False,
         },
     }
 }
@@ -130,7 +135,7 @@ LOGGING = {
             "formatter": "verbose",
         },
     },
-    "root": {"level": "INFO", "handlers": ["console"]},
+    "root": {"level": "DEBUG", "handlers": ["console"]},
     "loggers": {
         "django.request": {
             "handlers": ["mail_admins"],
