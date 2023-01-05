@@ -15,7 +15,7 @@
 			"value": "$(secretOrRandomPassword)"
 		},
 		"djangoSecretKey": {
-			"value": "$(secretOrRandomPassword)"
+			"value": "${DJANGO_SECRET_KEY}"
 		}
 	}
 }
