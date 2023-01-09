@@ -6,8 +6,6 @@ param principalId string
 param databasePassword string
 @secure()
 param djangoSecretKey string
-@secure()
-param sendgridAPIKey string
 param tags object
 
 var prefix = '${name}-${resourceToken}'
@@ -172,7 +170,7 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
       DJANGO_AZURE_ACCOUNT_KEY: storageAccount.listKeys().keys[0].value
       DJANGO_AZURE_CONTAINER_NAME: 'django'
       DJANGO_ADMIN_URL: 'admin${uniqueString(resourceGroup().id)}'
-      SENDGRID_API_KEY: sendgridAPIKey
+      SENDGRID_API_KEY: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=SENDGRID-API-KEY)'
       SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
       POST_BUILD_COMMAND: 'npm install && npm run build'
     }
@@ -297,8 +295,13 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     accessPolicies: [
       {
         objectId: principalId
-        permissions: { secrets: [ 'get', 'list' ] }
+        permissions: { secrets: [ 'get', 'list', 'set' ] }
         tenantId: subscription().tenantId
+      }
+      {
+        objectId: web.identity.principalId
+        permissions: { secrets: [ 'get'] }
+        tenantId: web.identity.tenantId
       }
     ]
   }
@@ -311,6 +314,7 @@ resource databasePasswordSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' =
     value: databasePassword
   }
 }
+
 resource djangoSecretKeySecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   parent: keyVault
   name: 'djangoSecretKey'
