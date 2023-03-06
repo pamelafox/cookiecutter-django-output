@@ -7,6 +7,7 @@ param databasePassword string
 @secure()
 param djangoSecretKey string
 param tags object
+param useRedis bool
 
 var prefix = '${name}-${resourceToken}'
 
@@ -104,7 +105,7 @@ resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@20
   }
 }
 
-resource redisCache 'Microsoft.Cache/Redis@2020-06-01' = {
+resource redisCache 'Microsoft.Cache/Redis@2020-06-01' = if (useRedis) {
   name: '${prefix}-redis'
   location: location
   tags: tags
@@ -112,14 +113,14 @@ resource redisCache 'Microsoft.Cache/Redis@2020-06-01' = {
     enableNonSslPort: false
     minimumTlsVersion: '1.2'
     sku: {
-      capacity: 1
+      capacity: 0
       family: 'C'
       name: 'Basic'
     }
   }
 }
 
-resource Microsoft_Insights_diagnosticsettings_redisCacheName 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource Microsoft_Insights_diagnosticsettings_redisCacheName 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (useRedis) {
   scope: redisCache
   name: redisCache.name
   properties: {
@@ -164,8 +165,8 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
       DJANGO_DEBUG: 'False'
       DJANGO_SECRET_KEY: djangoSecretKey
       DJANGO_ALLOWED_HOSTS: web.properties.defaultHostName
-      REDIS_URL: 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/0?ssl_cert_reqs=CERT_REQUIRED'
-      CELERY_BROKER_URL: 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/1?ssl_cert_reqs=CERT_REQUIRED'
+      REDIS_URL: useRedis ? 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/0?ssl_cert_reqs=CERT_REQUIRED' : 'NO_REDIS_URL'
+      CELERY_BROKER_URL: useRedis ? 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/1?ssl_cert_reqs=CERT_REQUIRED' : 'NO_REDIS_URL'
       DJANGO_AZURE_ACCOUNT_NAME: storageAccount.name
       DJANGO_AZURE_ACCOUNT_KEY: storageAccount.listKeys().keys[0].value
       DJANGO_AZURE_CONTAINER_NAME: 'django'
@@ -247,7 +248,7 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-01-20-pr
     tier: 'Burstable'
   }
   properties: {
-    version: '13'
+    version: '14'
     administratorLogin: 'django'
     administratorLoginPassword: databasePassword
     availabilityZone: '1'
