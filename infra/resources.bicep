@@ -100,9 +100,6 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-05-01' = {
   name: '${storageAccount.name}/default/django'
-  properties: {
-    publicAccess: 'Blob'
-  }
 }
 
 resource redisCache 'Microsoft.Cache/Redis@2020-06-01' = if (useRedis) {
@@ -165,11 +162,12 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
       DJANGO_DEBUG: 'False'
       DJANGO_SECRET_KEY: djangoSecretKey
       DJANGO_ALLOWED_HOSTS: web.properties.defaultHostName
-      REDIS_URL: useRedis ? 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/0?ssl_cert_reqs=CERT_REQUIRED' : 'NO_REDIS_URL'
-      CELERY_BROKER_URL: useRedis ? 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/1?ssl_cert_reqs=CERT_REQUIRED' : 'NO_REDIS_URL'
+      REDIS_URL: useRedis ? 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/0?ssl_cert_reqs=required' : 'NO_REDIS_URL'
+      CELERY_BROKER_URL: useRedis ? 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/1?ssl_cert_reqs=required' : 'NO_REDIS_URL'
       DJANGO_AZURE_ACCOUNT_NAME: storageAccount.name
       DJANGO_AZURE_ACCOUNT_KEY: storageAccount.listKeys().keys[0].value
       DJANGO_AZURE_CONTAINER_NAME: 'django'
+      DJANGO_AZURE_URL_EXPIRATION_SECS: '604800' // 1 week
       DJANGO_ADMIN_URL: 'admin${uniqueString(resourceGroup().id)}'
       SENDGRID_API_KEY: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=SENDGRID-API-KEY)'
       SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
