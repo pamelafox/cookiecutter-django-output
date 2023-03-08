@@ -64,12 +64,14 @@ SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
 INSTALLED_APPS += ["storages"]  # noqa F405
 AZURE_ACCOUNT_KEY = env("DJANGO_AZURE_ACCOUNT_KEY")
 AZURE_ACCOUNT_NAME = env("DJANGO_AZURE_ACCOUNT_NAME")
-AZURE_CONTAINER = env("DJANGO_AZURE_CONTAINER_NAME")
-AZURE_URL_EXPIRATION_SECS = env.int("DJANGO_AZURE_URL_EXPIRATION_SECS", default=None)
 
 # STATIC
 # ------------------------
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+#whitenoise=y:
+#STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "my_awesome_project.utils.storages.StaticRootAzureStorage"
+STATIC_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/static/"
+
 # MEDIA
 # ------------------------------------------------------------------------------
 DEFAULT_FILE_STORAGE = "my_awesome_project.utils.storages.MediaRootAzureStorage"
