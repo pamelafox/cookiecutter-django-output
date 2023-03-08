@@ -67,8 +67,8 @@ AZURE_ACCOUNT_NAME = env("DJANGO_AZURE_ACCOUNT_NAME")
 
 # STATIC
 # ------------------------
-#whitenoise=y:
-#STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# whitenoise=y:
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATICFILES_STORAGE = "my_awesome_project.utils.storages.StaticRootAzureStorage"
 STATIC_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/static/"
 
